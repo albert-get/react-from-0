@@ -85,7 +85,7 @@ module.exports = {
         historyApiFallback: true,
         proxy: {
             "/api": {
-                target: '',
+                target: 'http://10.128.3.72:9000',
                 pathRewrite: {'^/api' : ''},
                 changeOrigin: true
             }

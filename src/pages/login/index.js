@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import style from './index.module.less'
 import bg from '../../assets/login.jpeg'
 import {Button, Box, Input, InputAdornment,Typography} from '@mui/material'
@@ -62,6 +62,11 @@ function Index(){
                     <Input
                         value={verifyCode}
                         onChange={(e)=>{setVerifyCode(e.target.value)}}
+                        onKeyDown={(e)=>{
+                            if(e.code==='Space'||e.code==='Enter'){
+                                login()
+                            }
+                        }}
                         fullWidth={true}
                         placeholder={'验证码'}
                         type="text"

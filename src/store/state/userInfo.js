@@ -6,10 +6,10 @@ let userInfo={
 export function userInfoReducer(state = userInfo, action = {}) {
     switch (action.type) {
         case "userInfo":
-            let userRole=action.data.userRole[0]
-            let roleFunc=flatFuncs(userRole.functions)
-            userRole.roleFunc=roleFunc
-            return userRole;
+            let roleFunc0=flatFuncs(action.data.userRole[0].functions)
+            let roleFunc1=flatFuncs(action.data.userRole[1].functions)
+            action.data.roleFunc=Object.assign(roleFunc0,roleFunc1)
+            return action.data;
         default: return state;
     }
 }
