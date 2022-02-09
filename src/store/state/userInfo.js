@@ -6,10 +6,14 @@ let userInfo={
 export function userInfoReducer(state = userInfo, action = {}) {
     switch (action.type) {
         case "userInfo":
-            let roleFunc0=flatFuncs(action.data.userRole[0].functions)
-            let roleFunc1=flatFuncs(action.data.userRole[1].functions)
-            action.data.roleFunc=Object.assign(roleFunc0,roleFunc1)
+            let role={}
+            action.data.userRole.map((v)=>{
+                Object.assign(role,flatFuncs(v.functions))
+            })
+            action.data.roleFunc=role
             return action.data;
+        case 'logout':
+            return {};
         default: return state;
     }
 }

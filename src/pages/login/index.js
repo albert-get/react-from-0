@@ -7,7 +7,8 @@ import logoq from '../../assets/logo-q.png'
 import logob from '../../assets/logo-b.png'
 import {useNavigate} from 'react-router-dom'
 import Cookie from 'js-cookie'
-function Index(){
+import {connect} from "react-redux";
+function Index(props){
     let [imgId,setImgId]=useState(0)
     let [userName,setUserName]=useState('')
     let [password,setPassword]=useState('')
@@ -85,4 +86,5 @@ function Index(){
         </Box>
     )
 }
+
 export default Index

@@ -1,4 +1,4 @@
-import React, {useRef} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import { connect } from 'react-redux'
 import menuConfig from './config'
 import { TreeView,TreeItem } from '@mui/lab';
@@ -26,41 +26,81 @@ function Clock (){
         </div>
     )
 }
-function Adapt(props){
+function AdaptO(props){
     let navigate=useNavigate()
     const logout=()=>{
+
         Cookie.remove('token')
+        props.dispatch({type:'logout'})
         navigate('/login')
+
     }
     return (
         <div style={{height:'220px',background:'#2389c0',display:'flex',flexDirection:'column',alignItems:'center',paddingTop:'20px',boxSizing:'border-box'}}>
-            <img alt={'头像'} src={props.pic} width={140} height={140} style={{border:'1px solid #ccc'}} />
+            <img alt={'头像'} src={props.userInfo.userPic} width={140} height={140} style={{border:'1px solid #ccc'}} />
             <div style={{position:'relative',textAlign:'center',width:'140px'}}>
-                <span style={{color:'#fff'}}>{props.name}</span>
+                <span style={{color:'#fff'}}>{props.userInfo.userName}</span>
                 <div onClick={()=>{logout()}} style={{cursor:'pointer',color:'#ccc',fontSize:'10px',position:'absolute',right:'10px',bottom:'0'}}>注销</div>
             </div>
         </div>
     )
 }
+
+const mapStatesToPropsO=(state)=>{
+    return {
+        userInfo:state.userInfo
+    }
+}
+
+const Adapt = connect(mapStatesToPropsO)(AdaptO)
 function Index(props){
-    let routeMap=useRef(null).current
-    routeMap=flatRouterToMap(router)
+    let routeMap=useRef(null)
+    routeMap.current=flatRouterToMap(router)
+    let navigate=useNavigate()
+    let dSelect=useRef('')
+    let dExpend=useRef([])
+    let [selected,setSelected]=useState('')
+    let [expand,setExpend]=useState([])
+    useEffect(()=>{
+        if(dSelect.current!==''){
+            setSelected(dSelect.current)
+        }
+        if(dExpend.current.length>0){
+            setExpend(dExpend.current)
+        }
+    },[dSelect.current])
     if(props.userInfo.roleFunc){
         return (
             <Box>
                 <Clock/>
-                <Adapt pic={props.userInfo.userPic} name={props.userInfo.userName}/>
-                <TreeView>
+                <Adapt/>
+                <TreeView
+                    onNodeSelect={(e,id)=>{
+                        if(id.startsWith('/')){
+                            navigate(id)
+                            setSelected(id)
+                        }
+                    }}
+                    onNodeToggle={(e,ids)=>{
+                        setExpend(ids)
+                    }}
+                    selected={selected}
+                    expanded={expand}
+                >
                     {
                         menuConfig.map((v,i)=>{
                             if(v.child){
                                 if(props.userInfo.roleFunc[v.fid]){
                                     return (
-                                        <TreeItem key={`${i}${v.fid}`} nodeId={v.fid} label={v.name}>
+                                        <TreeItem key={v.fid} nodeId={v.fid} label={v.name}>
                                             {
                                                 v.child.map((c,j)=>{
                                                     if(props.userInfo.roleFunc[c]){
-                                                        return <TreeItem key={`${j}${c}`} nodeId={`${c}`} label={routeMap[c].name}></TreeItem>
+                                                        if(props.initialRouter!=='/'&&props.initialRouter.includes(routeMap.current[c].path)){
+                                                            dSelect.current=routeMap.current[c].path
+                                                            dExpend.current=[v.fid]
+                                                        }
+                                                        return <TreeItem key={c} nodeId={routeMap.current[c].path} label={routeMap.current[c].name}></TreeItem>
                                                     }else {
                                                         return null
                                                     }
@@ -75,13 +115,18 @@ function Index(props){
                             }else{
                                 if(v.fid){
                                     if(props.userInfo.roleFunc[v.fid]){
-                                        return <TreeItem key={`${i}${v.fid}`} nodeId={v.fid} label={routeMap[v.fid].name}></TreeItem>
+                                        if(props.initialRouter!=='/'&&props.initialRouter.includes(routeMap.current[v.fid].path)){
+                                            dSelect.current=routeMap[v.fid].path
+                                        }
+                                        return <TreeItem key={v.fid} nodeId={routeMap.current[v.fid].path} label={routeMap.current[v.fid].name}></TreeItem>
                                     }else{
                                         return null
                                     }
-
                                 }else{
-                                    return <TreeItem key={`${i}${Math.random()}`} nodeId={v.path} label={v.name}></TreeItem>
+                                    if(props.initialRouter!=='/'&&props.initialRouter.includes(v.path)){
+                                        dSelect.current=v.path
+                                    }
+                                    return <TreeItem key={v.path} nodeId={v.path} label={v.name}></TreeItem>
                                 }
                             }
                         })
@@ -96,7 +141,8 @@ function Index(props){
 }
 const mapStatesToProps=(state)=>{
     return {
-        userInfo:state.userInfo
+        userInfo:state.userInfo,
+        initialRouter:state.initialRouter
     }
 }
 

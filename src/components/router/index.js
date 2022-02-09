@@ -7,6 +7,7 @@ import Layout from '../../components/layout'
 import { connect } from 'react-redux'
 import axios from "../../config/axios";
 import Cookie from "js-cookie";
+import Redirect from '../redirect'
 
 
 function Index(props){
@@ -28,7 +29,7 @@ function Index(props){
                     }
                 </Route>
                 <Route exact={true} path={'/login'} element={<Login/>} />
-                <Route path="*" element={<Navigate to="/" />} />
+                <Route path="*" element={<Redirect/>} />
             </Routes>
         </BrowserRouter>
     )

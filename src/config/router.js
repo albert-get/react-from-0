@@ -16,7 +16,7 @@ const router =[
     },
     {
         fid:'0202',
-        path:'/order',
+        path:'/task',
         name:'定时任务管理',
         component:Order
     },

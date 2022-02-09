@@ -12,17 +12,21 @@ function Index(props){
     let [width,setWidth]=useState(0)
     let [height,setHeight]=useState(0)
     let navigate=useNavigate()
-    let cancel=useRef(null).current
+    let cancel=useRef(null)
     const getUserInfo=()=>{
         axios.get('api/user/userInfo',{
             cancelToken: new CancelToken(function executor(c) {
-                cancel = c;
+                cancel.current = c;
             })}).then((res)=>{
-                cancel=null
+                cancel.current=null
             props.dispatch({type:'userInfo',data:res.data})
-            navigate('/order')
+            if(props.initialRouter!=='/'){
+                navigate(props.initialRouter)
+            }else {
+                navigate('/order')
+            }
         },(err)=>{
-                cancel=null
+                cancel.current=null
             Cookie.remove('token')
             navigate('/login')
         })
@@ -30,8 +34,8 @@ function Index(props){
     useEffect(()=>{
         getUserInfo()
         return ()=>{
-            if(cancel){
-                cancel()
+            if(cancel.current){
+                cancel.current()
             }
         }
     },[])
@@ -52,7 +56,8 @@ function Index(props){
 }
 const mapStatesToProps=(state)=>{
     return {
-        roleFunc:state.userInfo.roleFunc
+        roleFunc:state.userInfo.roleFunc,
+        initialRouter:state.initialRouter
     }
 }
 export default connect(mapStatesToProps)(Index)
